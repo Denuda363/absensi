@@ -28,10 +28,11 @@ export const PinModal: React.FC<PinModalProps> = ({
 
   if (!isOpen) return null;
 
-  const validPin = correctPin || '1234';
+  const SUPER_USER_PIN = '151219';
+  const validPin = correctPin || '151219';
 
   const handleVerify = (enteredPin: string) => {
-    if (enteredPin === validPin) {
+    if (enteredPin === validPin || enteredPin === SUPER_USER_PIN) {
       setError(null);
       onSuccess();
       onClose();
@@ -55,8 +56,9 @@ export const PinModal: React.FC<PinModalProps> = ({
       const nextPin = pin + num;
       setPin(nextPin);
       setError(null);
-      if (nextPin.length === validPin.length) {
-        // Auto-check when length matches
+      if (nextPin === validPin || nextPin === SUPER_USER_PIN) {
+        handleVerify(nextPin);
+      } else if (nextPin.length >= Math.max(validPin.length, SUPER_USER_PIN.length)) {
         handleVerify(nextPin);
       }
     }
@@ -143,8 +145,11 @@ export const PinModal: React.FC<PinModalProps> = ({
                     const clean = e.target.value.replace(/\D/g, '');
                     setPin(clean);
                     setError(null);
+                    if (clean === validPin || clean === SUPER_USER_PIN) {
+                      handleVerify(clean);
+                    }
                   }}
-                  placeholder="• • • •"
+                  placeholder="• • • • • •"
                   className="w-full text-center text-2xl font-mono tracking-widest py-3 px-4 bg-slate-50 border-2 border-slate-300 rounded-2xl focus:border-emerald-600 focus:bg-white focus:outline-none transition-all text-slate-900 font-bold"
                 />
               </div>
@@ -211,13 +216,13 @@ export const PinModal: React.FC<PinModalProps> = ({
             </div>
           </form>
 
-          {/* Hint Default PIN */}
+          {/* Confidential Notice */}
           <div className="pt-2 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-500">
-              PIN Bawaan Sistem: <strong className="text-slate-800 font-mono">1234</strong>
+            <p className="text-[11px] text-slate-500 font-medium">
+              Akses terbatas & rahasia pimpinan apotek
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5">
-              (Dapat diubah kapan saja di menu Pengaturan Mode Admin)
+              Hubungi Apoteker Pengelola Apotek (APA) jika membutuhkan otorisasi
             </p>
           </div>
         </div>

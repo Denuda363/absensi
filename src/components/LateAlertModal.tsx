@@ -26,11 +26,11 @@ export const LateAlertModal: React.FC<LateAlertModalProps> = ({
   settings,
   onSubmitReason
 }) => {
-  if (!isOpen || !record) return null;
-
   const [category, setCategory] = useState<AttendanceRecord['lateReasonCategory']>('Macet');
-  const [detailReason, setDetailReason] = useState<string>(record.lateReason || '');
-  const [hasSentWhatsApp, setHasSentWhatsApp] = useState<boolean>(record.notificationDispatched);
+  const [detailReason, setDetailReason] = useState<string>(record?.lateReason || '');
+  const [hasSentWhatsApp, setHasSentWhatsApp] = useState<boolean>(record?.notificationDispatched || false);
+
+  if (!isOpen || !record) return null;
 
   const handleSendWhatsApp = () => {
     const fullReason = detailReason.trim()

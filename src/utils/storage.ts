@@ -100,7 +100,7 @@ export const DEFAULT_SETTINGS: PharmacySettings = {
   enableSoundAlerts: true,
   enableBrowserAlerts: true,
   autoSendWhatsAppPrompt: true,
-  adminPin: '1234'
+  adminPin: '151219'
 };
 
 export function getInitialAttendance(today: string): AttendanceRecord[] {

@@ -105,7 +105,15 @@ export default function App() {
       COLLECTIONS.SETTINGS,
       'default-settings',
       (data) => {
-        if (data) setSettings(data);
+        if (data) {
+          if (data.adminPin === '1234') {
+            const migrated = { ...data, adminPin: '151219' };
+            setSettings(migrated);
+            saveDocument(COLLECTIONS.SETTINGS, 'default-settings', migrated).catch(() => {});
+          } else {
+            setSettings(data);
+          }
+        }
       },
       initial.settings
     );
@@ -216,6 +224,10 @@ export default function App() {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.SHIFTS, shifts);
   }, [shifts]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.EMPLOYEES, employees);
+  }, [employees]);
 
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.ACTIVE_USER_ID, currentEmployeeId);
@@ -480,6 +492,56 @@ export default function App() {
     );
   };
 
+  // Handle Employee Management (Add, Update, Delete)
+  const handleAddEmployee = (newEmployee: Employee) => {
+    setEmployees((prev) => [...prev, newEmployee]);
+
+    // Persist new employee to Firebase Firestore
+    saveDocument(COLLECTIONS.EMPLOYEES, newEmployee.id, newEmployee).catch((err) => {
+      console.warn('Firestore employee add error:', err);
+    });
+
+    // Create default day off schedule for this new employee
+    const newDayOff: EmployeeDayOff = {
+      id: `dayoff-${newEmployee.id}`,
+      employeeId: newEmployee.id,
+      employeeName: newEmployee.name,
+      regularDayOff: 'Minggu',
+      specificDatesOff: [],
+      notes: 'Staf baru Apotek Assyifa Farma'
+    };
+    setDayOffs((prev) => [...prev, newDayOff]);
+    saveDocument(COLLECTIONS.DAY_OFFS, newDayOff.id, newDayOff).catch(() => {});
+  };
+
+  const handleUpdateEmployee = (updatedEmployee: Employee) => {
+    setEmployees((prev) =>
+      prev.map((e) => (e.id === updatedEmployee.id ? updatedEmployee : e))
+    );
+
+    // Update in Firestore
+    saveDocument(COLLECTIONS.EMPLOYEES, updatedEmployee.id, updatedEmployee).catch((err) => {
+      console.warn('Firestore employee update error:', err);
+    });
+  };
+
+  const handleDeleteEmployee = (employeeId: string) => {
+    setEmployees((prev) => prev.filter((e) => e.id !== employeeId));
+
+    // Remove from Firestore
+    removeDocument(COLLECTIONS.EMPLOYEES, employeeId).catch((err) => {
+      console.warn('Firestore employee remove error:', err);
+    });
+
+    // If current selected employee is deleted, fallback to first available
+    if (currentEmployeeId === employeeId) {
+      const remaining = employees.filter((e) => e.id !== employeeId);
+      if (remaining.length > 0) {
+        setCurrentEmployeeId(remaining[0].id);
+      }
+    }
+  };
+
   const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
 
   return (
@@ -532,6 +594,9 @@ export default function App() {
                 onDeleteRecord={handleDeleteRecord}
                 onMarkNotificationRead={handleMarkNotificationRead}
                 onNavigateToReports={() => setActiveTab('admin-reports')}
+                onAddEmployee={handleAddEmployee}
+                onUpdateEmployee={handleUpdateEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
               />
             )}
 
@@ -557,6 +622,9 @@ export default function App() {
                 onDeleteRecord={handleDeleteRecord}
                 onMarkNotificationRead={handleMarkNotificationRead}
                 onNavigateToReports={() => setActiveTab('admin-reports')}
+                onAddEmployee={handleAddEmployee}
+                onUpdateEmployee={handleUpdateEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
               />
             )}
 
@@ -571,6 +639,9 @@ export default function App() {
                 onUpdateDayOffs={handleUpdateDayOffs}
                 onAddSwapRecord={handleAddDayOffSwap}
                 onCancelSwapRecord={handleCancelDayOffSwap}
+                onAddEmployee={handleAddEmployee}
+                onUpdateEmployee={handleUpdateEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
               />
             )}
           </>
@@ -612,7 +683,7 @@ export default function App() {
       <PinModal
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
-        correctPin={settings.adminPin || '1234'}
+        correctPin={settings.adminPin || '151219'}
         onSuccess={() => {
           setCurrentRole('admin');
           setActiveTab('admin-dashboard');

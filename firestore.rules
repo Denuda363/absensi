@@ -19,16 +19,18 @@ service cloud.firestore {
     // with validation and payload size limits
     match /employees/{employeeId} {
       allow read: if true;
-      allow write: if isValidId(employeeId) &&
+      allow create, update: if isValidId(employeeId) &&
         incoming().name is string && incoming().name.size() <= 150 &&
         incoming().nip is string && incoming().nip.size() <= 50;
+      allow delete: if isValidId(employeeId);
     }
 
     match /shifts/{shiftId} {
       allow read: if true;
-      allow write: if isValidId(shiftId) &&
+      allow create, update: if isValidId(shiftId) &&
         incoming().name is string && incoming().name.size() <= 100 &&
         incoming().startTime is string && incoming().endTime is string;
+      allow delete: if isValidId(shiftId);
     }
 
     match /attendances/{attendanceId} {

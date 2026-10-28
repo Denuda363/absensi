@@ -41,8 +41,6 @@ export const ManualAttendanceModal: React.FC<ManualAttendanceModalProps> = ({
   selectedDate,
   onSave
 }) => {
-  if (!isOpen) return null;
-
   const today = getIndonesianCurrentDateString();
   const isEditing = !!existingRecord;
 
@@ -77,6 +75,23 @@ export const ManualAttendanceModal: React.FC<ManualAttendanceModalProps> = ({
     existingRecord?.clockInPhoto || ''
   );
   const [employeeSearch, setEmployeeSearch] = useState<string>('');
+
+  // Sync state when modal opens or existingRecord changes
+  useEffect(() => {
+    if (isOpen) {
+      setEmployeeId(existingRecord?.employeeId || employees[0]?.id || '');
+      setDate(existingRecord?.date || selectedDate || today);
+      setShiftId(existingRecord?.shiftId || shifts[0]?.id || '');
+      setStatus(existingRecord?.status || 'tepat_waktu');
+      setClockInTime(existingRecord?.clockInTime || '07:25');
+      setClockOutTime(existingRecord?.clockOutTime || '15:05');
+      setLateMinutes(existingRecord?.lateMinutes || 0);
+      setReason(existingRecord?.lateReason || '');
+      setAdminNote(existingRecord?.adminNote || (existingRecord ? '' : 'Diinput manual oleh Admin / Apoteker Pengelola Apotek (APA)'));
+      setPhotoUrl(existingRecord?.clockInPhoto || '');
+      setEmployeeSearch('');
+    }
+  }, [isOpen, existingRecord, selectedDate]);
 
   const filteredEmployees = employees.filter((emp) => {
     if (!employeeSearch.trim()) return true;
@@ -117,6 +132,8 @@ export const ManualAttendanceModal: React.FC<ManualAttendanceModalProps> = ({
       setPhotoUrl(selectedEmployee.avatar);
     }
   }, [employeeId, selectedEmployee, photoUrl]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

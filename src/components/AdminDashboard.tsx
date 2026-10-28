@@ -27,7 +27,8 @@ import {
   Search,
   CheckCircle2,
   Calendar,
-  Briefcase
+  Briefcase,
+  UserPlus
 } from 'lucide-react';
 import {
   formatIndonesianDate,
@@ -36,6 +37,7 @@ import {
 } from '../utils/date';
 import { ManualAttendanceModal } from './ManualAttendanceModal';
 import { PrintMonthlyModal } from './PrintMonthlyModal';
+import { EmployeeManagementModal } from './EmployeeManagementModal';
 
 interface AdminDashboardProps {
   employees: Employee[];
@@ -48,6 +50,9 @@ interface AdminDashboardProps {
   onDeleteRecord: (recordId: string) => void;
   onMarkNotificationRead: (id: string) => void;
   onNavigateToReports: () => void;
+  onAddEmployee: (employee: Employee) => void;
+  onUpdateEmployee: (employee: Employee) => void;
+  onDeleteEmployee: (employeeId: string) => void;
 }
 
 const StatusBadge: React.FC<{ status: AttendanceRecord['status']; lateMinutes: number }> = ({
@@ -111,7 +116,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdateRecord,
   onDeleteRecord,
   onMarkNotificationRead,
-  onNavigateToReports
+  onNavigateToReports,
+  onAddEmployee,
+  onUpdateEmployee,
+  onDeleteEmployee
 }) => {
   const today = getIndonesianCurrentDateString();
   const [selectedDate, setSelectedDate] = useState<string>(today);
@@ -122,6 +130,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [selectedRecordDetail, setSelectedRecordDetail] = useState<AttendanceRecord | null>(null);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
   const [isMonthlyModalOpen, setIsMonthlyModalOpen] = useState<boolean>(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState<boolean>(false);
   const [recordToEdit, setRecordToEdit] = useState<AttendanceRecord | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -233,6 +242,16 @@ Mohon untuk lebih mengantisipasi perjalanan demi kelancaran pelayanan obat kepad
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          {/* Kelola / Tambah Karyawan Button */}
+          <button
+            onClick={() => setIsEmployeeModalOpen(true)}
+            className="px-3.5 py-2 bg-emerald-800 hover:bg-emerald-900 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Kelola & Tambah Data Karyawan Apotek"
+          >
+            <UserPlus className="w-4 h-4 text-emerald-200" />
+            <span>+ Data Karyawan</span>
+          </button>
+
           {/* Input Manual Button */}
           <button
             onClick={() => {
@@ -291,12 +310,21 @@ Mohon untuk lebih mengantisipasi perjalanan demi kelancaran pelayanan obat kepad
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
-          <span className="text-[11px] font-medium text-slate-500 block">Total Karyawan</span>
-          <div className="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-            {totalEmployees}
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs flex flex-col justify-between">
+          <div>
+            <span className="text-[11px] font-medium text-slate-500 block">Total Karyawan</span>
+            <div className="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+              {totalEmployees}
+            </div>
+            <span className="text-[10px] text-slate-400 mt-0.5 block">Staff & Apoteker</span>
           </div>
-          <span className="text-[10px] text-slate-400 mt-0.5 block">Staff & Apoteker</span>
+          <button
+            onClick={() => setIsEmployeeModalOpen(true)}
+            className="text-[10px] text-emerald-700 hover:text-emerald-900 font-bold mt-1.5 flex items-center gap-1 cursor-pointer"
+          >
+            <UserPlus className="w-3 h-3" />
+            <span>Kelola Staf →</span>
+          </button>
         </div>
 
         <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
@@ -933,6 +961,17 @@ Mohon untuk lebih mengantisipasi perjalanan demi kelancaran pelayanan obat kepad
           </div>
         </div>
       )}
+
+      {/* Employee Management Modal */}
+      <EmployeeManagementModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        employees={employees}
+        shifts={shifts}
+        onAddEmployee={onAddEmployee}
+        onUpdateEmployee={onUpdateEmployee}
+        onDeleteEmployee={onDeleteEmployee}
+      />
 
     </div>
   );

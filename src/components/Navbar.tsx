@@ -12,6 +12,7 @@ import {
   Search,
   Cloud
 } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   currentRole: UserRole;
@@ -133,8 +134,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </nav>
 
-          {/* Right Action Icons: Cloud Indicator on mobile, Notif, Role Switch */}
+          {/* Right Action Icons: Install App, Cloud Indicator on mobile, Notif, Role Switch */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Install App Button (PC, Tablet, & Mobile) */}
+            <PWAInstallButton variant="navbar" className="hidden sm:inline-flex" />
+            <PWAInstallButton variant="compact" className="sm:hidden text-[10px] px-2 py-1" />
+
             {/* Mobile Cloud Dot */}
             <div
               title="Firebase Terhubung"

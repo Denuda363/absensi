@@ -119,12 +119,12 @@ export const PrintMonthlyModal: React.FC<PrintMonthlyModalProps> = ({
   attendanceRecords,
   settings
 }) => {
-  if (!isOpen) return null;
-
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth());
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
   const monthName = INDONESIAN_MONTHS[selectedMonth];

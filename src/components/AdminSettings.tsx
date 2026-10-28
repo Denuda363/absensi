@@ -32,10 +32,13 @@ import {
   RotateCcw,
   Coffee,
   Check,
-  AlertCircle
+  AlertCircle,
+  Users,
+  UserPlus
 } from 'lucide-react';
 import { playLateAlertChime, playSuccessChime } from '../utils/audio';
 import { getIndonesianCurrentDateString, formatIndonesianDate } from '../utils/date';
+import { EmployeeManagementModal } from './EmployeeManagementModal';
 
 interface AdminSettingsProps {
   settings: PharmacySettings;
@@ -47,6 +50,9 @@ interface AdminSettingsProps {
   onUpdateDayOffs: (dayOffs: EmployeeDayOff[]) => void;
   onAddSwapRecord: (swap: DayOffSwapRecord) => void;
   onCancelSwapRecord: (swapId: string) => void;
+  onAddEmployee?: (employee: Employee) => void;
+  onUpdateEmployee?: (employee: Employee) => void;
+  onDeleteEmployee?: (employeeId: string) => void;
 }
 
 const DAYS_OF_WEEK: DayOfWeek[] = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
@@ -60,7 +66,10 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   onSaveSettings,
   onUpdateDayOffs,
   onAddSwapRecord,
-  onCancelSwapRecord
+  onCancelSwapRecord,
+  onAddEmployee = () => {},
+  onUpdateEmployee = () => {},
+  onDeleteEmployee = () => {}
 }) => {
   const [formData, setFormData] = useState<PharmacySettings>({ ...settings });
   const [shiftsData, setShiftsData] = useState<Shift[]>([...shifts]);
@@ -68,6 +77,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   const [dayOffSwapsData, setDayOffSwapsData] = useState<DayOffSwapRecord[]>([...dayOffSwaps]);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [showPin, setShowPin] = useState<boolean>(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState<boolean>(false);
 
   // Day Off UI state
   const [scheduleTab, setScheduleTab] = useState<'jadwal' | 'tukar' | 'riwayat' | 'matriks'>('jadwal');
@@ -554,6 +564,60 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
 
       <form onSubmit={handleSave} className="space-y-6">
         
+        {/* Section: Kelola Data Karyawan & Staf Farmasi */}
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                <Users className="w-4 h-4 text-emerald-700" />
+                <span>Kelola Data Karyawan & Staf Apotek</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Daftar {employees.length} staf aktif. Tambah karyawan baru, ubah data NIP, posisi jabatan farmasi, dan nomor WhatsApp.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsEmployeeModalOpen(true)}
+              className="px-3.5 py-2 bg-emerald-800 hover:bg-emerald-900 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <UserPlus className="w-4 h-4 text-emerald-200" />
+              <span>+ Tambah / Kelola Karyawan</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {employees.map((emp) => (
+              <div
+                key={emp.id}
+                className="p-3 bg-slate-50 border border-slate-200/90 rounded-xl flex items-center justify-between gap-2.5 hover:border-emerald-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <img
+                    src={emp.avatar}
+                    alt={emp.name}
+                    referrerPolicy="no-referrer"
+                    className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-slate-900 text-xs truncate">{emp.name}</h3>
+                    <p className="text-[11px] text-emerald-800 font-medium truncate">{emp.role}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">NIP: {emp.nip}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEmployeeModalOpen(true)}
+                  className="px-2 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold shrink-0 cursor-pointer"
+                >
+                  Edit
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Section 1: Kustomisasi Shift Fleksibel */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -893,7 +957,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                   pattern="[0-9]*"
                   minLength={4}
                   maxLength={8}
-                  value={formData.adminPin || '1234'}
+                  value={formData.adminPin || '151219'}
                   onChange={(e) => {
                     const clean = e.target.value.replace(/\D/g, '');
                     setFormData({ ...formData, adminPin: clean });
@@ -904,7 +968,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                 <KeyRound className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
               </div>
               <span className="text-[11px] text-slate-500 mt-1 block">
-                PIN default bawaan adalah <strong>1234</strong>. Pastikan tidak lupa saat mengubahnya.
+                PIN operasional harian admin apotek. Master Super User PIN (151219) selalu aktif sebagai kunci pemulihan darurat.
               </span>
             </div>
 
@@ -1578,6 +1642,17 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Modal Kelola & Tambah Karyawan */}
+      <EmployeeManagementModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        employees={employees}
+        shifts={shiftsData}
+        onAddEmployee={onAddEmployee}
+        onUpdateEmployee={onUpdateEmployee}
+        onDeleteEmployee={onDeleteEmployee}
+      />
 
     </div>
   );
