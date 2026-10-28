@@ -1,0 +1,200 @@
+{
+  "entities": {
+    "employee": {
+      "title": "Employee",
+      "description": "Karyawan atau staf Apotek Assyifa Farma Cideres",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "nip": { "type": "string" },
+        "role": { "type": "string" },
+        "phone": { "type": "string" },
+        "avatar": { "type": "string" },
+        "defaultShiftId": { "type": "string" }
+      },
+      "required": ["id", "name", "role", "nip"]
+    },
+    "shift": {
+      "title": "Shift",
+      "description": "Konfigurasi jam kerja shift farmasi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "gracePeriodMinutes": { "type": "number" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "name", "startTime", "endTime"]
+    },
+    "attendance": {
+      "title": "Attendance",
+      "description": "Catatan presensi masuk dan pulang karyawan farmasi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "employeeRole": { "type": "string" },
+        "date": { "type": "string" },
+        "shiftId": { "type": "string" },
+        "shiftName": { "type": "string" },
+        "scheduledStartTime": { "type": "string" },
+        "scheduledEndTime": { "type": "string" },
+        "clockInTime": { "type": "string" },
+        "clockInPhoto": { "type": "string" },
+        "clockInLocation": { "type": "object" },
+        "clockOutTime": { "type": "string" },
+        "clockOutPhoto": { "type": "string" },
+        "status": { "type": "string" },
+        "lateMinutes": { "type": "number" },
+        "lateReason": { "type": "string" },
+        "lateReasonCategory": { "type": "string" },
+        "lateStatusAcknowledged": { "type": "boolean" },
+        "adminNote": { "type": "string" },
+        "notificationDispatched": { "type": "boolean" },
+        "notificationDispatchedAt": { "type": "string" }
+      },
+      "required": ["id", "employeeId", "date", "status"]
+    },
+    "dailyReport": {
+      "title": "DailyReport",
+      "description": "Laporan harian farmasi mencakup resep, suhu kulkas obat, dan stok kritis",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "attendanceId": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "employeeRole": { "type": "string" },
+        "date": { "type": "string" },
+        "shiftName": { "type": "string" },
+        "prescriptionsCount": { "type": "number" },
+        "otcSalesCount": { "type": "number" },
+        "temperatureLog": { "type": "object" },
+        "lowStockItems": { "type": "string" },
+        "goodsReceivedNotes": { "type": "string" },
+        "dailyTasksSummary": { "type": "string" },
+        "incidentReport": { "type": "string" },
+        "status": { "type": "string" },
+        "verifiedBy": { "type": "string" },
+        "verifiedAt": { "type": "string" },
+        "supervisorFeedback": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "employeeId", "date", "status"]
+    },
+    "notification": {
+      "title": "Notification",
+      "description": "Notifikasi keterlambatan dan peringatan absensi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "attendanceId": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "employeeRole": { "type": "string" },
+        "shiftName": { "type": "string" },
+        "scheduledTime": { "type": "string" },
+        "clockInTime": { "type": "string" },
+        "lateMinutes": { "type": "number" },
+        "reason": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "waSent": { "type": "boolean" }
+      },
+      "required": ["id", "employeeId", "timestamp"]
+    },
+    "pharmacySettings": {
+      "title": "PharmacySettings",
+      "description": "Pengaturan Apotek Assyifa Farma Cideres (radius GPS, kontak supervisor, pin)",
+      "type": "object",
+      "properties": {
+        "pharmacyName": { "type": "string" },
+        "pharmacyAddress": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "maxRadiusMeters": { "type": "number" },
+        "supervisorPhone": { "type": "string" },
+        "supervisorName": { "type": "string" },
+        "enableSoundAlerts": { "type": "boolean" },
+        "enableBrowserAlerts": { "type": "boolean" },
+        "autoSendWhatsAppPrompt": { "type": "boolean" },
+        "adminPin": { "type": "string" }
+      },
+      "required": ["pharmacyName", "adminPin"]
+    },
+    "employeeDayOff": {
+      "title": "EmployeeDayOff",
+      "description": "Jadwal libur rutin dan libur khusus karyawan apotek",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "employeeName": { "type": "string" },
+        "regularDayOff": { "type": "string" },
+        "specificDatesOff": { "type": "array" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "employeeId", "regularDayOff"]
+    },
+    "dayOffSwap": {
+      "title": "DayOffSwap",
+      "description": "Riwayat dan persetujuan tukar jadwal libur staf apotek",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "employeeId1": { "type": "string" },
+        "employeeName1": { "type": "string" },
+        "originalDate1": { "type": "string" },
+        "newDate1": { "type": "string" },
+        "employeeId2": { "type": "string" },
+        "employeeName2": { "type": "string" },
+        "originalDate2": { "type": "string" },
+        "newDate2": { "type": "string" },
+        "reason": { "type": "string" },
+        "status": { "type": "string" },
+        "approvedBy": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "employeeId1", "originalDate1", "newDate1", "reason", "status"]
+    }
+  },
+  "firestore": {
+    "/employees/{employeeId}": {
+      "schema": "employee",
+      "description": "Daftar profil staf karyawan Apotek Assyifa Farma"
+    },
+    "/shifts/{shiftId}": {
+      "schema": "shift",
+      "description": "Daftar jam kerja shift operasional apotek"
+    },
+    "/attendances/{attendanceId}": {
+      "schema": "attendance",
+      "description": "Data absensi masuk dan pulang harian"
+    },
+    "/dailyReports/{reportId}": {
+      "schema": "dailyReport",
+      "description": "Laporan harian farmasi, suhu kulkas, transaksi, dan stok kritis"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "notification",
+      "description": "Peringatan keterlambatan dan notifikasi sistem"
+    },
+    "/settings/{settingId}": {
+      "schema": "pharmacySettings",
+      "description": "Konfigurasi instansi apotek dan parameter operasional"
+    },
+    "/dayOffs/{dayOffId}": {
+      "schema": "employeeDayOff",
+      "description": "Jadwal libur mingguan dan libur khusus karyawan"
+    },
+    "/dayOffSwaps/{swapId}": {
+      "schema": "dayOffSwap",
+      "description": "Catatan permohonan dan tukar hari libur staf apotek"
+    }
+  }
+}

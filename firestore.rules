@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    // Default match: allow read and write to configured pharmacy collections
+    // with validation and payload size limits
+    match /employees/{employeeId} {
+      allow read: if true;
+      allow write: if isValidId(employeeId) &&
+        incoming().name is string && incoming().name.size() <= 150 &&
+        incoming().nip is string && incoming().nip.size() <= 50;
+    }
+
+    match /shifts/{shiftId} {
+      allow read: if true;
+      allow write: if isValidId(shiftId) &&
+        incoming().name is string && incoming().name.size() <= 100 &&
+        incoming().startTime is string && incoming().endTime is string;
+    }
+
+    match /attendances/{attendanceId} {
+      allow read: if true;
+      allow create, update: if isValidId(attendanceId) &&
+        incoming().employeeId is string && incoming().employeeId.size() <= 64 &&
+        incoming().date is string && incoming().date.size() <= 32;
+      allow delete: if isValidId(attendanceId);
+    }
+
+    match /dailyReports/{reportId} {
+      allow read: if true;
+      allow create, update: if isValidId(reportId) &&
+        incoming().employeeId is string && incoming().employeeId.size() <= 64 &&
+        incoming().date is string && incoming().date.size() <= 32;
+      allow delete: if isValidId(reportId);
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow create, update: if isValidId(notificationId) &&
+        incoming().employeeId is string && incoming().employeeId.size() <= 64;
+      allow delete: if isValidId(notificationId);
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId);
+    }
+
+    match /dayOffs/{dayOffId} {
+      allow read: if true;
+      allow create, update: if isValidId(dayOffId) &&
+        incoming().employeeId is string && incoming().employeeId.size() <= 64;
+      allow delete: if isValidId(dayOffId);
+    }
+
+    match /dayOffSwaps/{swapId} {
+      allow read: if true;
+      allow create, update: if isValidId(swapId) &&
+        incoming().employeeId1 is string && incoming().employeeId1.size() <= 64;
+      allow delete: if isValidId(swapId);
+    }
+  }
+}

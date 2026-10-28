@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Presensi & Laporan Harian - Apotek Assyifa Farma Cideres",
+  "description": "Sistem absensi digital dan pelaporan harian karyawan Apotek Assyifa Farma Cideres dengan notifikasi otomatis keterlambatan.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
